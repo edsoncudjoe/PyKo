@@ -1,0 +1,695 @@
+Last login: Fri Jun 26 11:59:45 on ttys000
+Edit4@Edit4:~$ cd Documents/Edson/
+Edit4@Edit4:~/Documents/Edson$ ls
+CatDV-QuickSearch/ RP/                weather/
+IV/                cdv2xl.ico         white-search.icns
+Py-CatDV/          tdd2/              yt/
+Edit4@Edit4:~/Documents/Edson$ ls IV/
+README.md          get_iv_numbers.py  ivfilesearch.py    ivsearch2015.py
+cdvtxt2xlsx.py*    guiivsearch.py     ivsearch2.py       totalfilesize.py
+Edit4@Edit4:~/Documents/Edson$ git clone https://github.com/edsoncudjoe/ltohistory.git
+Cloning into 'ltohistory'...
+remote: Counting objects: 14, done.
+remote: Total 14 (delta 0), reused 0 (delta 0), pack-reused 14
+Unpacking objects: 100% (14/14), done.
+Checking connectivity... done
+Edit4@Edit4:~/Documents/Edson$ cd ltohistory/
+Edit4@Edit4:~/Documents/Edson/ltohistory$ ls
+LICENSE        README.md      ltohistory.py
+Edit4@Edit4:~/Documents/Edson/ltohistory$ ls ../CatDV-QuickSearch/
+CDVQsErr.log           LICENSE                setup.py
+CatDV Quick Search.py  README.md
+Edit4@Edit4:~/Documents/Edson/ltohistory$ ls ../Py-CatDV/
+CatDVlib.py      LICENSE.md       pycatdv.py       test_pycatdv.py
+CatDVlib.pyc     README.md        pycatdv.pyc
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git status
+# On branch master
+nothing to commit, working directory clean
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git checkout -b library
+Switched to a new branch 'library'
+Edit4@Edit4:~/Documents/Edson/ltohistory$ python2.7 ltohistory.py 
+Traceback (most recent call last):
+  File "ltohistory.py", line 233, in <module>
+    user = Cdvlib()
+NameError: name 'Cdvlib' is not defined
+Edit4@Edit4:~/Documents/Edson/ltohistory$ python2.7 ltohistory.py 
+File loaded.
+
+Login to CatDV Api? [y/n]: y
+
+Enter login details for CatDV: 
+Enter username: web
+Enter password: 
+
+Getting catalog data...
+
+Catalog names and ID's have been loaded
+
+Building client list.
+Unable to perform this process due to a missing file.
+Traceback (most recent call last):
+  File "ltohistory.py", line 285, in <module>
+    main()
+  File "ltohistory.py", line 276, in main
+    user.deleteSession()
+AttributeError: 'Catdvlib' object has no attribute 'deleteSession'
+Edit4@Edit4:~/Documents/Edson/ltohistory$ python2.7 ltohistory.py 
+File loaded.
+
+Login to CatDV Api? [y/n]: y
+
+Enter login details for CatDV: 
+Enter username: web
+Enter password: 
+
+Getting catalog data...
+
+Catalog names and ID's have been loaded
+
+Building client list.
+Unable to perform this process due to a missing file.
+Closing application
+Goodbye!
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git diff
+diff --git a/ltohistory.py b/ltohistory.py
+index 54a9b3a..63fa2be 100644
+--- a/ltohistory.py
++++ b/ltohistory.py
+@@ -15,7 +15,7 @@ import time
+ import tkFileDialog
+ from Tkinter import *
+ sys.path.insert(0, '../Py-CatDV') 
+-from CatDVlib import Cdvlib
++from pycatdv import Catdvlib
+ 
+ def byte2TB(byte):
+        """
+@@ -66,7 +66,7 @@ def lto_to_list(data):
+        final = []
+        for item in data:
+                try:
+-                       collect.append((item[0], item[6])) # add IV name and siz
++                       collect.append((item[0], item[6])) 
+                except:
+                        print('Unable to add data: {}'.format(item))
+                        continue
+@@ -77,12 +77,13 @@ def lto_to_list(data):
+                        if 'test' in c[0]:
+                                continue
+                        #1 file has been labelled incorrectly.
+-                       # It will be temporarily skipped until the tape has been
++                       # It will be temporarily skipped until the tape has been
++                       #fixed.
+                        elif 'Intervideo' in c[0]:
+                                continue
+                        else:
+-                               gb = byte2TB(c[1]) # converts GB byte data to TB
+-                               a = re.search(r'(IV\d\d\d\d)', c[0]) #removes un
++                               gb = byte2TB(c[1])
++                               a = re.search(r'(IV\d\d\d\d)', c[0])
+                                final.append((str(a.group()), round(gb, 2))) 
+        return final
+ 
+@@ -131,10 +132,10 @@ def get_storage_size(client_items):
+ def catdv_login(user):
+        """Enter CatDV server login details to get access to the API"""
+        try:
+-               user.getAuth()
++               user.get_auth()
+                print('\nGetting catalog data...\n')
+-               user.getSessionKey()
+-               user.getCatalogName()
++               user.get_session_key()
++               user.get_catalog_name()
+                time.sleep(1)
+                print('Catalog names and ID\'s have been loaded')
+        except:
+@@ -151,9 +152,9 @@ def show_catalog_names(user):
+ def get_barcodes(group_id):
+        """Gets a list of IV barcodes for user-specified client."""
+        user.iv_barcodes = []
+-       user.getCatalogClips(group_id)
+-       user.collectIVNumbers()
+-       return user.sortBarcodes()
++       user.get_catalog_clips(group_id)
++       user.collect_iv_numbers()
++       return user.sort_barcodes()
+ 
+ def client_name_id(user):
+        """Puts client names and id numbers into a dictionary"""
+@@ -229,7 +230,7 @@ options['filetypes'] = [
+ root = Tk()
+ root.withdraw()
+ 
+-user = Cdvlib()
++user = Catdvlib()
+ def main():
+        try:
+                lt_info = get_lto_info()
+@@ -272,7 +273,7 @@ def main():
+        except TypeError:
+                print('Unable to perform this process due to a missing file.')
+        finally:
+-               user.deleteSession()
++               user.delete_session()
+                try:
+                        if lto_file:
+                                lto_file.close()
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git status
+# On branch library
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   ltohistory.py
+#
+no changes added to commit (use "git add" and/or "git commit -a")
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git commit -am "replaced links to CatDV library"
+[library d5b7a6a] replaced links to CatDV library
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git checkout master
+Switched to branch 'master'
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git branch
+  library
+* master
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git merge library
+Updating 3a94087..d5b7a6a
+Fast-forward
+ ltohistory.py | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git pull master
+fatal: 'master' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+Edit4@Edit4:~/Documents/Edson/ltohistory$ git push origin master
+error: git-credential-osxkeychain died of signal 11
+Username for 'https://github.com': edsoncudjoe
+Password for 'https://edsoncudjoe@github.com': 
+error: git-credential-osxkeychain died of signal 11
+Counting objects: 5, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 465 bytes | 0 bytes/s, done.
+Total 3 (delta 2), reused 0 (delta 0)
+To https://github.com/edsoncudjoe/ltohistory.git
+   3a94087..d5b7a6a  master -> master
+Edit4@Edit4:~/Documents/Edson/ltohistory$ cd ../Py-CatDV/
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ ls
+CatDVlib.py      LICENSE.md       pycatdv.py       test_pycatdv.py
+CatDVlib.pyc     README.md        pycatdv.pyc
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch api
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   pycatdv.py
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	pycatdv.pyc
+#	test_pycatdv.py
+no changes added to commit (use "git add" and/or "git commit -a")
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ ls
+CatDVlib.py      LICENSE.md       pycatdv.py       test_pycatdv.py
+CatDVlib.pyc     README.md        pycatdv.pyc
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ rm CatDVlib.py* pycatdv.pyc
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ ls
+LICENSE.md       README.md        pycatdv.py       test_pycatdv.py
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch api
+# Changes not staged for commit:
+#   (use "git add/rm <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	deleted:    CatDVlib.py
+#	deleted:    CatDVlib.pyc
+#	modified:   pycatdv.py
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	test_pycatdv.py
+no changes added to commit (use "git add" and/or "git commit -a")
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git add .
+warning: You ran 'git add' with neither '-A (--all)' or '--ignore-removal',
+whose behaviour will change in Git 2.0 with respect to paths you removed.
+Paths like 'CatDVlib.py' that are
+removed from your working tree are ignored with this version of Git.
+
+* 'git add --ignore-removal <pathspec>', which is the current default,
+  ignores paths you removed from your working tree.
+
+* 'git add --all <pathspec>' will let you also record the removals.
+
+Run 'git status' to check the paths you removed from your working tree.
+
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch api
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	modified:   pycatdv.py
+#	new file:   test_pycatdv.py
+#
+# Changes not staged for commit:
+#   (use "git add/rm <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	deleted:    CatDVlib.py
+#	deleted:    CatDVlib.pyc
+#
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git add --all
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch api
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	deleted:    CatDVlib.py
+#	deleted:    CatDVlib.pyc
+#	modified:   pycatdv.py
+#	new file:   test_pycatdv.py
+#
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ echo "test_pycatdv.py" >> .gitignore
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch api
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	deleted:    CatDVlib.py
+#	deleted:    CatDVlib.pyc
+#	modified:   pycatdv.py
+#	new file:   test_pycatdv.py
+#
+# Untracked files:
+#   (use "git add <file>..." to include in what will be committed)
+#
+#	.gitignore
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git add .
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch api
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	new file:   .gitignore
+#	deleted:    CatDVlib.py
+#	deleted:    CatDVlib.pyc
+#	modified:   pycatdv.py
+#	new file:   test_pycatdv.py
+#
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git commit -m "final CatDV library"
+[api 28868a0] final CatDV library
+ 5 files changed, 27 insertions(+), 124 deletions(-)
+ create mode 100644 .gitignore
+ delete mode 100644 CatDVlib.py
+ delete mode 100644 CatDVlib.pyc
+ create mode 100644 test_pycatdv.py
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git reset HEAD
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch api
+# Your branch is ahead of 'origin/api' by 1 commit.
+#   (use "git push" to publish your local commits)
+#
+nothing to commit, working directory clean
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git reset HEAD test_pycatdv.py 
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch api
+# Your branch is ahead of 'origin/api' by 1 commit.
+#   (use "git push" to publish your local commits)
+#
+nothing to commit, working directory clean
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ less .gitignore
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git pull
+Already up-to-date.
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git push origin master
+error: git-credential-osxkeychain died of signal 11
+Username for 'https://github.com': edsoncudjoe
+Password for 'https://edsoncudjoe@github.com': 
+error: git-credential-osxkeychain died of signal 11
+Everything up-to-date
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git branch
+* api
+  master
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git checkout master
+Switched to branch 'master'
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch master
+nothing to commit, working directory clean
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git checkout -d api
+error: unknown switch `d'
+usage: git checkout [options] <branch>
+   or: git checkout [options] [<branch>] -- <file>...
+
+    -q, --quiet           suppress progress reporting
+    -b <branch>           create and checkout a new branch
+    -B <branch>           create/reset and checkout a branch
+    -l                    create reflog for new branch
+    --detach              detach the HEAD at named commit
+    -t, --track           set upstream info for new branch
+    --orphan <new branch>
+                          new unparented branch
+    -2, --ours            checkout our version for unmerged files
+    -3, --theirs          checkout their version for unmerged files
+    -f, --force           force checkout (throw away local modifications)
+    -m, --merge           perform a 3-way merge with the new branch
+    --overwrite-ignore    update ignored files (default)
+    --conflict <style>    conflict style (merge or diff3)
+    -p, --patch           select hunks interactively
+    --ignore-skip-worktree-bits
+                          do not limit pathspecs to sparse entries only
+
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git branch -d api
+error: The branch 'api' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D api'.
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git merge api
+Updating 2f23fa2..28868a0
+Fast-forward
+ .gitignore      |  1 +
+ pycatdv.py      | 99 ++++++++++++++++++++++++++++++++++++++++-----------------
+ test_pycatdv.py | 23 ++++++++++++++
+ 3 files changed, 93 insertions(+), 30 deletions(-)
+ create mode 100644 .gitignore
+ create mode 100644 test_pycatdv.py
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git diff
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git status
+# On branch master
+# Your branch is ahead of 'origin/master' by 8 commits.
+#   (use "git push" to publish your local commits)
+#
+nothing to commit, working directory clean
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git pull origin master
+From https://github.com/edsoncudjoe/Py-CatDV
+ * branch            master     -> FETCH_HEAD
+Already up-to-date.
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git push origin master
+error: git-credential-osxkeychain died of signal 11
+Username for 'https://github.com': edsoncudjoe
+Password for 'https://edsoncudjoe@github.com': 
+error: git-credential-osxkeychain died of signal 11
+Counting objects: 9, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (5/5), 686 bytes | 0 bytes/s, done.
+Total 5 (delta 1), reused 0 (delta 0)
+To https://github.com/edsoncudjoe/Py-CatDV.git
+   2f23fa2..28868a0  master -> master
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ ls
+LICENSE.md       README.md        pycatdv.py       test_pycatdv.py
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git branch -d api
+warning: not deleting branch 'api' that is not yet merged to
+         'refs/remotes/origin/api', even though it is merged to HEAD.
+error: The branch 'api' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D api'.
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ git branch -D api
+Deleted branch api (was 28868a0).
+Edit4@Edit4:~/Documents/Edson/Py-CatDV$ cd ../
+Edit4@Edit4:~/Documents/Edson$ ls
+CatDV-QuickSearch/ RP/                tdd2/              yt/
+IV/                cdv2xl.ico         weather/
+Py-CatDV/          ltohistory/        white-search.icns
+Edit4@Edit4:~/Documents/Edson$ rm -rf ltohistory/
+Edit4@Edit4:~/Documents/Edson$ rm -rf Py-CatDV/
+Edit4@Edit4:~/Documents/Edson$ cd CatDV-QuickSearch/
+Edit4@Edit4:~/Documents/Edson/CatDV-QuickSearch$ git status
+# On branch master
+nothing to commit, working directory clean
+Edit4@Edit4:~/Documents/Edson/CatDV-QuickSearch$ cd ../
+Edit4@Edit4:~/Documents/Edson$ rm -rf CatDV-QuickSearch/
+Edit4@Edit4:~/Documents/Edson$ ls
+IV/                cdv2xl.ico         weather/           yt/
+RP/                tdd2/              white-search.icns
+Edit4@Edit4:~/Documents/Edson$ cd IV
+Edit4@Edit4:~/Documents/Edson/IV$ ls
+README.md          get_iv_numbers.py  ivfilesearch.py    ivsearch2015.py
+cdvtxt2xlsx.py*    guiivsearch.py     ivsearch2.py       totalfilesize.py
+Edit4@Edit4:~/Documents/Edson/IV$ git pull
+remote: Counting objects: 8, done.
+remote: Compressing objects: 100% (5/5), done.
+remote: Total 8 (delta 3), reused 3 (delta 3), pack-reused 0
+Unpacking objects: 100% (8/8), done.
+From https://github.com/edsoncudjoe/IV
+   21b94e1..921bde8  master     -> origin/master
+Updating 21b94e1..921bde8
+Fast-forward
+ get_iv_numbers.py |  77 -------------------------
+ guiivsearch.py    |  88 ----------------------------
+ ivfilesearch.py   |  65 ---------------------
+ ivsearch2.py      | 170 ------------------------------------------------------
+ 4 files changed, 400 deletions(-)
+ delete mode 100644 get_iv_numbers.py
+ delete mode 100644 guiivsearch.py
+ delete mode 100644 ivfilesearch.py
+ delete mode 100644 ivsearch2.py
+Edit4@Edit4:~/Documents/Edson/IV$ ls
+README.md         cdvtxt2xlsx.py*   ivsearch2015.py   totalfilesize.py
+Edit4@Edit4:~/Documents/Edson/IV$ cd ../
+Edit4@Edit4:~/Documents/Edson$ ls
+IV/                cdv2xl.ico         weather/           yt/
+RP/                tdd2/              white-search.icns
+Edit4@Edit4:~/Documents/Edson$ git clone https://github.com/edsoncudjoe/CatDVText2XlsxGui.git
+Cloning into 'CatDVText2XlsxGui'...
+remote: Counting objects: 37, done.
+remote: Total 37 (delta 0), reused 0 (delta 0), pack-reused 37
+Unpacking objects: 100% (37/37), done.
+Checking connectivity... done
+Edit4@Edit4:~/Documents/Edson$ cd CatDVText2XlsxGui/
+Edit4@Edit4:~/Documents/Edson/CatDVText2XlsxGui$ python2.7 catdv2XlsxGui.py 
+Edit4@Edit4:~/Documents/Edson/CatDVText2XlsxGui$ cd ../
+Edit4@Edit4:~/Documents/Edson$ rm -rf CatDVText2XlsxGui/
+Edit4@Edit4:~/Documents/Edson$ cd IV
+Edit4@Edit4:~/Documents/Edson/IV$ ls
+README.md         cdvtxt2xlsx.py*   ivsearch2015.py   totalfilesize.py
+Edit4@Edit4:~/Documents/Edson/IV$ git status
+# On branch master
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   README.md
+#	modified:   ivsearch2015.py
+#
+no changes added to commit (use "git add" and/or "git commit -a")
+Edit4@Edit4:~/Documents/Edson/IV$ git rm cdvtxt2xlsx.py 
+rm 'cdvtxt2xlsx.py'
+Edit4@Edit4:~/Documents/Edson/IV$ git status
+# On branch master
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	deleted:    cdvtxt2xlsx.py
+#
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#	modified:   README.md
+#	modified:   ivsearch2015.py
+#
+Edit4@Edit4:~/Documents/Edson/IV$ git add --all
+Edit4@Edit4:~/Documents/Edson/IV$ git status
+# On branch master
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#	modified:   README.md
+#	deleted:    cdvtxt2xlsx.py
+#	modified:   ivsearch2015.py
+#
+Edit4@Edit4:~/Documents/Edson/IV$ git commit -m "removed unused comments, removed cdvtxt2xlsx. There is an updated version available"
+[master dce077a] removed unused comments, removed cdvtxt2xlsx. There is an updated version available
+ 3 files changed, 11 insertions(+), 134 deletions(-)
+ rewrite README.md (99%)
+ delete mode 100755 cdvtxt2xlsx.py
+Edit4@Edit4:~/Documents/Edson/IV$ git push origin master
+error: git-credential-osxkeychain died of signal 11
+Username for 'https://github.com': edsoncudjoe
+Password for 'https://edsoncudjoe@github.com': 
+error: git-credential-osxkeychain died of signal 11
+Counting objects: 7, done.
+Delta compression using up to 2 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 532 bytes | 0 bytes/s, done.
+Total 4 (delta 1), reused 0 (delta 0)
+To https://github.com/edsoncudjoe/IV.git
+   921bde8..dce077a  master -> master
+Edit4@Edit4:~/Documents/Edson/IV$ ls
+README.md         ivsearch2015.py   totalfilesize.py
+Edit4@Edit4:~/Documents/Edson/IV$ cd ../
+Edit4@Edit4:~/Documents/Edson$ rm -rf IV/
+Edit4@Edit4:~/Documents/Edson$ ls
+RP/                tdd2/              white-search.icns
+cdv2xl.ico         weather/           yt/
+Edit4@Edit4:~/Documents/Edson$ ls yt
+index.html
+Edit4@Edit4:~/Documents/Edson$ git clone https://github.com/edsoncudjoe/PyKo.gitCloning into 'PyKo'...
+remote: Counting objects: 19, done.
+remote: Total 19 (delta 0), reused 0 (delta 0), pack-reused 19
+Unpacking objects: 100% (19/19), done.
+Checking connectivity... done
+Edit4@Edit4:~/Documents/Edson$ cd PyKo/
+Edit4@Edit4:~/Documents/Edson/PyKo$ ls
+LICENSE    PyKo.py    README.md
+Edit4@Edit4:~/Documents/Edson/PyKo$ python2.7 PyKo.py 
+Traceback (most recent call last):
+  File "PyKo.py", line 3, in <module>
+    import pafy
+ImportError: No module named pafy
+Edit4@Edit4:~/Documents/Edson/PyKo$ pip2.7 install pafy
+Collecting pafy
+/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/pip/_vendor/requests/packages/urllib3/util/ssl_.py:90: InsecurePlatformWarning: A true SSLContext object is not available. This prevents urllib3 from configuring SSL appropriately and may cause certain SSL connections to fail. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning.
+  InsecurePlatformWarning
+  Downloading pafy-0.3.74-py2.py3-none-any.whl
+Installing collected packages: pafy
+Successfully installed pafy-0.3.74
+Edit4@Edit4:~/Documents/Edson/PyKo$ python2.7 PyKo.py 
+Traceback (most recent call last):
+  File "PyKo.py", line 4, in <module>
+    from prettytable import PrettyTable
+ImportError: No module named prettytable
+Edit4@Edit4:~/Documents/Edson/PyKo$ pip2.7 install prettyTable
+Collecting prettyTable
+/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/pip/_vendor/requests/packages/urllib3/util/ssl_.py:90: InsecurePlatformWarning: A true SSLContext object is not available. This prevents urllib3 from configuring SSL appropriately and may cause certain SSL connections to fail. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning.
+  InsecurePlatformWarning
+  Downloading prettytable-0.7.2.tar.bz2
+Building wheels for collected packages: prettyTable
+  Running setup.py bdist_wheel for prettyTable
+  Stored in directory: /Users/Edit4/Library/Caches/pip/wheels/41/46/ec/ec86e65e50e9f4be52547a3bedd46077e7414c53d2ed0418fd
+Successfully built prettyTable
+Installing collected packages: prettyTable
+Successfully installed prettyTable-0.7.2
+Edit4@Edit4:~/Documents/Edson/PyKo$ python2.7 PyKo.py 
+Traceback (most recent call last):
+  File "PyKo.py", line 5, in <module>
+    from pytube import YouTube
+ImportError: No module named pytube
+Edit4@Edit4:~/Documents/Edson/PyKo$ pip2.7 install pytube
+Collecting pytube
+/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/pip/_vendor/requests/packages/urllib3/util/ssl_.py:90: InsecurePlatformWarning: A true SSLContext object is not available. This prevents urllib3 from configuring SSL appropriately and may cause certain SSL connections to fail. For more information, see https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning.
+  InsecurePlatformWarning
+  Downloading pytube-0.2.0.tar.gz
+Building wheels for collected packages: pytube
+  Running setup.py bdist_wheel for pytube
+  Stored in directory: /Users/Edit4/Library/Caches/pip/wheels/5b/27/89/708187d594a70a1de51f9d5eaa3f0933bd96d8e6273e38be76
+Successfully built pytube
+Installing collected packages: pytube
+Successfully installed pytube-0.2.0
+Edit4@Edit4:~/Documents/Edson/PyKo$ python2.7 PyKo.py 
+Enter the name of the song: minnie the moocher
+Enter the name of the artist: cab calloway
++-----------------------------------------------------------------------------------+
+|          Video name                                                               |
++-----------------------------------------------------------------------------------+
+|          1.Blues Brothers - Minnie the Moocher (Cab Calloway)                     |
+|          2.Cab Calloway - Minnie the Moocher                                      |
+|          3.Cab Calloway - Minnie The Moocher 1930                                 |
+|          4.Mix - Blues Brothers - Minnie the Moocher (Cab Calloway)               |
+|          5.Betty Boop Minnie the Moocher                                          |
+|          6.Cab Calloway - "Minnie The Moocher" - ORIGINAL "VIDEO"                 |
+|          7.Cab Calloway Singing Minnie The Moocher (Live 1988)                    |
+|          8.Cab Calloway - Minnie the Moocher                                      |
+|          9.Minnie the Moocher - song only                                         |
+|          10.Cab Calloway Minnie The Moocher Live Apollo Theatre                   |
+|          11.The Blues Brothers                                                    |
+|          12.Cab Calloway & His Orchestra - Minnie the moocher                     |
+|          13.The Blues Brothers - Minnie The Moocher (Cab Calloway).               |
+|          14.The Blues Brothers Minnie The Moocher (Cab Calloway) 720p HD          |
+|          15.Cab Calloway, Minnie the Moocher Vol 2                                |
+|          16.Cab Calloway - Minnie The Moocher (Original Video)                    |
+|          17.Cab Calloway - Minnie The Moocher                                     |
+|          18.Cab Calloway   Minnie The Moocher 1942                                |
+|          19.Cab Calloway - Minnie the Moocher (1931)                              |
+|          20.Cab Calloway ‎-- Minnie The Moocher [12" 1978 disco version]          |
+|          21.Minnie The Moocher                                                    |
++-----------------------------------------------------------------------------------+
+Enter the number of the video to download: 1
+sh: cls: command not found
+Download URL fetched successfully!
+
+1. Get the list of available streams
+2. Get the highest resolution available
+3. Start download the video
+
+Select an action: 
+> 3
+Starting download: 
+
+Download finished!, the file has been downloaded to the same folder where the script is located.
+Edit4@Edit4:~/Documents/Edson/PyKo$ ls
+Blues Brothers - Minnie the Moocher (Cab Calloway).mp4
+LICENSE
+PyKo.py
+README.md
+Edit4@Edit4:~/Documents/Edson/PyKo$ git checkout -b ejo
+Switched to a new branch 'ejo'
+Edit4@Edit4:~/Documents/Edson/PyKo$ python2.7
+Python 2.7.6 (v2.7.6:3a1db0d2747e, Nov 10 2013, 00:42:54) 
+[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import pafy
+>>> playlist_url = 'https://www.youtube.com/watch?v=O1ylkdldauc&list=PL4F9306E671A4F2B8'
+>>> pl = pafy.get_playlist(playlist_url)
+>>> dir(pl)
+['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
+>>> pl.keys()
+['playlist_id', 'description', 'title', 'items', 'author', 'dislikes', 'likes']
+>>> len(pl.items())
+7
+>>> help(pl['items'][1])
+
+>>> dir(pl['items'][1])
+['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
+>>> pl['items'][1]['pafy']
+Pafy object: 8h1VQBfLDLA [Get a Mac - Feat. Mr.Bean..]
+>>> pl['items'][0]['pafy']
+Pafy object: O1ylkdldauc [Benny Lava sings "Johnny Gay"    (Crazy India..]
+>>> dir(pl['items'][0]['pafy'])
+['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_allstreams', '_audiostreams', '_author', '_bigthumb', '_bigthumbhd', '_category', '_dashurl', '_description', '_dislikes', '_duration', '_fetch_basic', '_fetch_gdata', '_formats', '_getbest', '_have_basic', '_have_gdata', '_keywords', '_length', '_likes', '_m4astreams', '_mix_pl', '_oggstreams', '_process_streams', '_published', '_rating', '_streams', '_thumb', '_title', '_username', '_videostreams', '_viewcount', 'age_ver', 'allstreams', 'asm', 'audiostreams', 'author', 'bigthumb', 'bigthumbhd', 'category', 'ciphertag', 'dash', 'description', 'dislikes', 'duration', 'expiry', 'fetch_basic', 'funcmap', 'getbest', 'getbestaudio', 'getbestvideo', 'js_url', 'keywords', 'length', 'likes', 'm4astreams', 'mix', 'oggstreams', 'playlist_meta', 'populate_from_playlist', 'published', 'rating', 'sm', 'streams', 'thumb', 'title', 'username', 'version', 'videoid', 'videostreams', 'viewcount', 'watchv_url']
+>>> help(pl['items'][0]['pafy'].getbest)
+
+>>> help(pl['items'][0]['pafy'].getbestaudio)
+
+>>> a = pl['items'][0]['pafy'].getbestaudio()
+>>> help(a)
+
+>>> a.download()
+u'Benny Lava sings "Johnny Gay"    (Crazy Indian Video).m4a'A: [0 secs]    
+>>> a = pl['items'][0]['pafy'].getbest()
+>>> a.download()
+u'Benny Lava sings "Johnny Gay"    (Crazy Indian Video).webm'A: [0 secs]    
+>>> for i in pl['items']:
+...   print i
+... 
+{'pafy': Title: Benny Lava sings "Johnny Gay"    (Crazy Indian Video)
+Author: appleslapple
+ID: O1ylkdldauc
+Duration: 00:04:09
+Rating: 4.83610773087
+Views: 201088
+Thumbnail: http://i.ytimg.com/vi/O1ylkdldauc/default.jpg
+Keywords: Benny Lava, Benny, Lava, Indian, Crazy Indian video, Crazy Indian music video, Indian music video, Indian music, music, video, music video, dance, subtitle, dub, dubbed, fake, parody, benny lava, buffalax, prabhu deva, prebhu, prebu, prabu, funny, hilarious, hillarious, hindi, english, johnny, gay, johnny gay, song, bollywood, price is right, may, he, poop, may he poop, nipple, nipple song, indian nipple song, nipple nipple, buffalaxed, bufalax, bufalaxed, benny lava goes retro, retro, goes, 'playlist_meta': {'rating': 5.0, 'added': u'15/02/2009', 'is_cc': False, 'description': u'Johnny Gay is an Indian music video with subtitles of the English words that the lyrics sound like a la "Benny Lava"', 'views': u'201,088', 'dislikes': 32, 'time_created': 1267892251, 'privacy': u'public', 'duration': u'4:09', 'likes': 749, 'is_hd': False, 'keywords': u'"Benny Lava" Benny Lava Indian "Crazy Indian video" "Crazy Indian music video" "Indian music video" "Indian music" music video "music video" dance subtitle dub dubbed fake parody "benny lava" buffalax "prabhu deva" prebhu prebu prabu funny hilarious hillarious hindi english johnny gay "johnny gay" song bollywood "price is right" may he poop "may he poop" nipple "nipple song" "indian nipple song" "nipple nipple" buffalaxed bufalax bufalaxed "benny lava goes retro" retro goes', 'user_id': u'kSZ_3ZUT2GVvM5G3HaswNA', 'cc_license': False, 'time_updated': None, 'end': 249, 'author': u'appleslapple', 'title': u'Benny Lava sings "Johnny Gay"    (Crazy Indian Video)', 'length_seconds': 249, 'comments': u'297', 'start': 0.0, 'encrypted_id': u'O1ylkdldauc', 'category_id': 23, 'thumbnail': u'https://i.ytimg.com/vi/O1ylkdldauc/default.jpg'}}
+{'pafy': Pafy object: 8h1VQBfLDLA [Get a Mac - Feat. Mr.Bean..], 'playlist_meta': {'rating': 4.5, 'added': u'28/06/2007', 'is_cc': False, 'description': u'Justin Bieber Sucks.', 'views': u'6,120,925', 'dislikes': 1472, 'time_created': 1267892251, 'privacy': u'public', 'duration': u'0:40', 'likes': 14726, 'is_hd': False, 'keywords': u'parody joke fake totally awesome get mac mrbean mr.bean apple dance funny goofy dumb dorky lame stupid mr bean movie', 'user_id': u'Xluk2LVh9AdXcIS7ODMrAA', 'cc_license': False, 'time_updated': None, 'end': 40, 'author': u'coaxial343', 'title': u'Get a Mac - Feat. Mr.Bean', 'length_seconds': 40, 'comments': u'6,109', 'start': 0.0, 'encrypted_id': u'8h1VQBfLDLA', 'category_id': 23, 'thumbnail': u'https://i.ytimg.com/vi/8h1VQBfLDLA/default.jpg'}}
+{'pafy': Pafy object: 7hltho3oARU [Benny Lava 3.0!!! (Take It Easy - Prabhu Deva..], 'playlist_meta': {'rating': 5.0, 'added': u'11/04/2012', 'is_cc': False, 'description': u'Benny lava 3.0 with the authentic Buffalax subtitles! Reuploaded for ENTERTAINMENT!', 'views': u'12,368', 'dislikes': 2, 'time_created': 1363982708, 'privacy': u'public', 'duration': u'5:36', 'likes': 128, 'is_hd': False, 'keywords': u'benny lava buffalax crazy indian video take it easy pussy prabhu deva funny subtitles english buffalaxed! lol hahaha rofl funniest ever', 'user_id': u'NxZCfE_YYOPNevf8PG5awA', 'cc_license': False, 'time_updated': None, 'end': 336, 'author': u'Tybooooo', 'title': u'Benny Lava 3.0!!! (Take It Easy - Prabhu Deva) Buffalaxed!', 'length_seconds': 336, 'comments': u'31', 'start': 0.0, 'encrypted_id': u'7hltho3oARU', 'category_id': 23, 'thumbnail': u'https://i.ytimg.com/vi/7hltho3oARU/default.jpg'}}
+>>> for i in pl['items']:
+...   print i['pafy']
+... 
+Title: Benny Lava sings "Johnny Gay"    (Crazy Indian Video)
+Author: appleslapple
+ID: O1ylkdldauc
+Duration: 00:04:09
+Rating: 4.83610773087
+Views: 201088
+Thumbnail: http://i.ytimg.com/vi/O1ylkdldauc/default.jpg
+Keywords: Benny Lava, Benny, Lava, Indian, Crazy Indian video, Crazy Indian music video, Indian music video, Indian music, music, video, music video, dance, subtitle, dub, dubbed, fake, parody, benny lava, buffalax, prabhu deva, prebhu, prebu, prabu, funny, hilarious, hillarious, hindi, english, johnny, gay, johnny gay, song, bollywood, price is right, may, he, poop, may he poop, nipple, nipple song, indian nipple song, nipple nipple, buffalaxed, bufalax, bufalaxed, benny lava goes retro, retro, goes
+Pafy object: 8h1VQBfLDLA [Get a Mac - Feat. Mr.Bean..]
+Pafy object: 7hltho3oARU [Benny Lava 3.0!!! (Take It Easy - Prabhu Deva..]
+>>> for i in pl['items']:
+...   a = i['pafy'].getbest(preftype="mp4")
+...   a.download()
+... 
+u'Benny Lava sings "Johnny Gay"    (Crazy Indian Video).mp4'TA: [0 secs]    
+u'Get a Mac - Feat. Mr.Bean.mp4'ived. Rate: [1769 KB/s].  ETA: [0 secs]    
+u'Benny Lava 3.0!!! (Take It Easy - Prabhu Deva) Buffalaxed!.mp4'0 secs]    
+>>> 

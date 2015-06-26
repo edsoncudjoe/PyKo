@@ -1,0 +1,10 @@
+-----
+To-Do
+-----
+
+1. after choice of 21 songs. IndexError out side of choice
+2. ValueError when letter or character selected for song choice
+3. needs menu to decide between videos and playlists
+4. needs func to download playlist 
+5. quit option in download funcs
+6. PEP-8 that Mar-Far!!!

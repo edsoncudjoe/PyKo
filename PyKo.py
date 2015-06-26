@@ -54,7 +54,24 @@ def downloadSong(url):
         else:
             print "Not a valid option!\n"
 
+def get_song():
+    pass
 
+def get_playlist():
+    songName = raw_input("Enter the name of the song: ")
+    artistName = raw_input("Enter the name of the artist: ")
+
+
+print("\n\t1. Songs\n\t2. Playlists")
+
+choice = raw_input("Enter your selection: ")
+if choice == "1":
+    get_song()
+elif choice == "2":
+    pass
+    #get_playlist()
+else:
+    print "Not a valid option!\n"
 
 
 songName = raw_input("Enter the name of the song: ")
@@ -69,6 +86,10 @@ z = 1
 
 
 url = "https://www.youtube.com/results?search_query=%s+%s" % (replacedSongName, replacedArtistName)
+# playlist
+pl = "https://www.youtube.com/results?filters=playlist&lclk=playlist\
+&search_query=%s+%s" % (replacedSongName, replacedArtistName)
+
 source_code = requests.get(url)
 plain_text = source_code.text
 soup = BeautifulSoup(plain_text)
