@@ -17,7 +17,9 @@ import os, sys
 # TODO: how to handle playlists?
 
 
-
+song_titles = []
+i = 1
+z = 1
 
 
 def downloadSong(url):
@@ -57,21 +59,51 @@ def downloadSong(url):
 def get_song():
     pass
 
-def get_playlist():
-    songName = raw_input("Enter the name of the song: ")
-    artistName = raw_input("Enter the name of the artist: ")
+def get_playlist(replacedSongName, replacedArtistName):
+    """
+    Returns list of playlist titles
+    """
+    song_titles = []
+    i = 1
+    playlist_url = "https://www.youtube.com/results?filters=playlist&lclk="\
+        + "playlist&search_query={}+{}".format(replacedSongName, replacedArtistName)
+    source = requests.get(playlist_url)
+    plain = source.text
+    soup = BeautifulSoup(plain)
+    for item in soup.findAll('a', {'class': 'yt-uix-tile-link yt-ui-ellipsis\
+    yt-ui-ellipsis-2 yt-uix-sessionlink     spf-link '}):
+        song_titles.append(item.string)
+        i += 1
+    return song_titles
+
+    
+
+def display_playlist(song_list):
+    """
+    Displays list of available playlists
+    """
+    #song_titles = []
+    #i = 1
+    z = 1
+    x = PrettyTable(["Playlist name"])
+    x.align["Playlist name"] = "p"
+    x.padding_width = 10
+    for title in song_list:
+        x.add_row([str(z) + "." + title])
+        z += 1
+    print x
 
 
-print("\n\t1. Songs\n\t2. Playlists")
+#print("\n\t1. Songs\n\t2. Playlists")
 
-choice = raw_input("Enter your selection: ")
-if choice == "1":
-    get_song()
-elif choice == "2":
-    pass
+#choice = raw_input("Enter your selection: ")
+#if choice == "1":
+#    get_song()
+#elif choice == "2":
+#    pass
     #get_playlist()
-else:
-    print "Not a valid option!\n"
+#else:
+#    print "Not a valid option!\n"
 
 
 songName = raw_input("Enter the name of the song: ")
@@ -85,33 +117,36 @@ i = 1
 z = 1
 
 
-url = "https://www.youtube.com/results?search_query=%s+%s" % (replacedSongName, replacedArtistName)
-# playlist
-pl = "https://www.youtube.com/results?filters=playlist&lclk=playlist\
-&search_query=%s+%s" % (replacedSongName, replacedArtistName)
+#url = "https://www.youtube.com/results?search_query=%s+%s" % (replacedSongName, replacedArtistName)
 
-source_code = requests.get(url)
-plain_text = source_code.text
-soup = BeautifulSoup(plain_text)
-for SongTitle in soup.findAll('a', {'class': 'yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 yt-uix-sessionlink     spf-link '}):
-    song_titles.append(SongTitle.string)
-    i += 1
+pl = get_playlist(replacedSongName, replacedArtistName)
+    
 
 
-x = PrettyTable(["Video name"])
-x.align["Video name"] = "l"
-x.padding_width = 10
-for title in song_titles:
-    x.add_row([str(z) + "." + title])
-    z += 1
-print x
+#source_code = requests.get(url)
+#plain_text = source_code.text
+#soup = BeautifulSoup(plain_text)
+#for SongTitle in soup.findAll('a', {'class': 'yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 yt-uix-sessionlink     spf-link '}):
+#    song_titles.append(SongTitle.string)
+#    i += 1
 
 
-video_number = raw_input("Enter the number of the video to download: ")
+#x = PrettyTable(["Video name"])
+#x.align["Video name"] = "l"
+#x.padding_width = 10
+#for title in song_titles:
+#    x.add_row([str(z) + "." + title])
+#    z += 1
+#print x
 
 
-for title in soup.findAll('a', {'title': song_titles[int(video_number)-1]}):
-    link_to_download = "http://www.youtube.com" + title.get("href")
+#display_playlist(pl)
+
+#video_number = raw_input("Enter the number of the video to download: ")
 
 
-downloadSong(link_to_download)
+#for title in soup.findAll('a', {'title': song_titles[int(video_number)-1]}):
+#    link_to_download = "http://www.youtube.com" + title.get("href")
+
+
+#downloadSong(link_to_download)
