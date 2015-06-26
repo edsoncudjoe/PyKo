@@ -120,8 +120,7 @@ z = 1
 #url = "https://www.youtube.com/results?search_query=%s+%s" % (replacedSongName, replacedArtistName)
 
 pl = get_playlist(replacedSongName, replacedArtistName)
-    
-
+display_playlist(pl)
 
 #source_code = requests.get(url)
 #plain_text = source_code.text
@@ -140,7 +139,7 @@ pl = get_playlist(replacedSongName, replacedArtistName)
 #print x
 
 
-#display_playlist(pl)
+
 
 #video_number = raw_input("Enter the number of the video to download: ")
 
