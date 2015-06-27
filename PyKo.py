@@ -5,7 +5,7 @@ from prettytable import PrettyTable
 from pytube import YouTube
 from pprint import pprint
 import os, sys
-
+import re
 
 # Written by Daniel Koifman(A.K.A HeliosHype) and Alex Putilin
 # You are allowed to freely use, edit, modify and distribute this script, just make sure to give proper credit :)
@@ -56,43 +56,14 @@ def downloadSong(url):
         else:
             print "Not a valid option!\n"
 
-def get_song():
-    pass
-
-def get_playlist(replacedSongName, replacedArtistName):
-    """
-    Returns list of playlist titles
-    """
-    song_titles = []
-    i = 1
-    playlist_url = "https://www.youtube.com/results?filters=playlist&lclk="\
-        + "playlist&search_query={}+{}".format(replacedSongName, replacedArtistName)
-    source = requests.get(playlist_url)
-    plain = source.text
-    soup = BeautifulSoup(plain)
-    for item in soup.findAll('a', {'class': 'yt-uix-tile-link yt-ui-ellipsis\
-    yt-ui-ellipsis-2 yt-uix-sessionlink     spf-link '}):
-        song_titles.append(item.string)
-        i += 1
-    return song_titles
-
-    
-
-def display_playlist(song_list):
-    """
-    Displays list of available playlists
-    """
-    #song_titles = []
-    #i = 1
-    z = 1
-    x = PrettyTable(["Playlist name"])
-    x.align["Playlist name"] = "p"
-    x.padding_width = 10
-    for title in song_list:
-        x.add_row([str(z) + "." + title])
-        z += 1
-    print x
-
+def download_playlist(playlist_url):
+    try:
+        pl = pafy.get_playlist(playlist_url)
+        for i in pl['items']:
+            a = i['pafy'].getbest(preftype="mp4")
+            a.download()
+    except Exception, e:
+        print e
 
 #print("\n\t1. Songs\n\t2. Playlists")
 
@@ -113,14 +84,53 @@ artistName = raw_input("Enter the name of the artist: ")
 replacedSongName = songName.replace(" ", "+")
 replacedArtistName = artistName.replace(" ", "+")
 song_titles = []
+playlist_titles = []
+collect_lengths = []
+playlist_lengths = []
 i = 1
 z = 1
+
+# for i in playlist_lengths:
+#...  m = re.findall(r"(\d.*videos)", i)
+#...   x.append(m)
+
 
 
 #url = "https://www.youtube.com/results?search_query=%s+%s" % (replacedSongName, replacedArtistName)
 
-pl = get_playlist(replacedSongName, replacedArtistName)
-display_playlist(pl)
+# Playlists
+playlist_url = "https://www.youtube.com/results?filters=playlist&lclk="\
+"playlist&search_query={}+{}".format(replacedSongName, replacedArtistName)
+source = requests.get(playlist_url)
+plain = source.text
+soup = BeautifulSoup(plain)
+for item in soup.findAll('a', {'class': 'yt-uix-tile-link yt-ui-ellipsis\
+    yt-ui-ellipsis-2 yt-uix-sessionlink     spf-link '}):
+    playlist_titles.append(item.string)
+    i += 1
+
+for item in soup.findAll('a', {'class': ' yt-uix-sessionlink spf-link '}):
+    collect_lengths.append(item.string[-12:])
+for i in collect_lengths:
+    match = re.findall(r"(\d.*videos)", i)
+    playlist_lengths.append(match) 
+p = [str(i[0]) for i in playlist_lengths]
+
+
+x = PrettyTable(["Playlist name"])
+x.align["Playlist name"] = "p"
+x.padding_width = 10
+for title in zip(playlist_titles, p):
+    x.add_row([str(z) + "." + title[0] + " | " + title[1]])
+    z += 1
+print x
+video_number = raw_input("Enter the number of the video to download: ")
+
+for title in soup.findAll('a', {'title': playlist_titles[int(video_number)-1]}):
+    link_to_download = "http://www.youtube.com" + title.get("href")
+
+
+#downloadSong(link_to_download)
 
 #source_code = requests.get(url)
 #plain_text = source_code.text
@@ -149,3 +159,4 @@ display_playlist(pl)
 
 
 #downloadSong(link_to_download)
+#download_playlist(link_to_download)
