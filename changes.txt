@@ -1,0 +1,42 @@
+====
+PyKo 
+====
+
+-------
+Changes
+-------
+
+General
+-------
+
+Moved link processing instructions into functions.
+Added a main function which calls the others when needed.
+
+Applied the PEP-8 style guide to function and variable names as well as line
+lengths.
+
+Edited the Readme.
+
+Playlists
+---------
+
+Added a playlist download feature.
+
+This feature consists of two functions:
+process_playlist_link(), and download_playlist()
+
+Added the re module to extract info on how many videos are in each playlist.
+
+Added exceptions for bad user entries
+
+TODO
+----
+Handle international character keys
+
+
+
+
+E.Cudjoe 29-06-2015
+
+
+
