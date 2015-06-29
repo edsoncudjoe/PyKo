@@ -26,20 +26,24 @@ def process_song_link(url):
         source_code = requests.get(url)
         plain_text = source_code.text
         soup = BeautifulSoup(plain_text)
-        for SongTitle in soup.findAll('a', {'class': 'yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 yt-uix-sessionlink     spf-link '}):
-            song_titles.append(SongTitle.string)
+        for title in soup.findAll('a', 
+            {'class': 'yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 '
+            'yt-uix-sessionlink     spf-link '}):
+            song_titles.append(title.string)
             i += 1
 
         x = PrettyTable(["Video name"])
         x.align["Video name"] = "l"
-        x.padding_width = 5
+        x.padding_width = 10
         for title in song_titles:
             x.add_row([str(z) + "." + title])
             z += 1
         print x
 
         video_number = raw_input("Enter the number of the video to download: ")
-        for title in soup.findAll('a', {'title': song_titles[int(video_number)-1]}):
+        
+        for title in soup.findAll('a', 
+            {'title': song_titles[int(video_number)-1]}):
             link_to_download = "http://www.youtube.com" + title.get("href")
 
         return link_to_download
@@ -60,12 +64,14 @@ def process_playlist_link(playlist_url):
         source = requests.get(playlist_url)
         plain = source.text
         soup = BeautifulSoup(plain)
-        for item in soup.findAll('a', {'class': 'yt-uix-tile-link yt-ui-ellipsis\
+        for item in soup.findAll('a', 
+            {'class': 'yt-uix-tile-link yt-ui-ellipsis\
             yt-ui-ellipsis-2 yt-uix-sessionlink     spf-link '}):
             playlist_titles.append(item.string)
             i += 1
 
-        for item in soup.findAll('a', {'class': ' yt-uix-sessionlink spf-link '}):
+        for item in soup.findAll('a', 
+            {'class': ' yt-uix-sessionlink spf-link '}):
             collect_lengths.append(item.string[-12:])
         for i in collect_lengths:
             match = re.findall(r"(\d.*videos)", i)
@@ -74,14 +80,16 @@ def process_playlist_link(playlist_url):
 
         x = PrettyTable(["Playlist name"])
         x.align["Playlist name"] = "p"
-        x.padding_width = 5
+        x.padding_width = 10
         for title in zip(playlist_titles, p):
             x.add_row([str(z) + "." + title[0] + " | " + title[1]])
             z += 1
         print x
-        video_number = raw_input("Enter the number of the video to download: ")
+        playlist_number = raw_input(
+            "Enter the number of the playlist to download: ")
 
-        for title in soup.findAll('a', {'title': playlist_titles[int(video_number)-1]}):
+        for title in soup.findAll('a', 
+            {'title': playlist_titles[int(playlist_number)-1]}):
             link_to_download = "http://www.youtube.com" + title.get("href")
         return link_to_download
     except IndexError:
@@ -89,7 +97,7 @@ def process_playlist_link(playlist_url):
     except ValueError:
         print("That option is not available!")
 
-def downloadSong(url):
+def download_song(url):
     """
     Downloads chosen video. User can also choose video quality before 
     downloading.
@@ -138,8 +146,8 @@ def download_playlist(playlist_url):
         for i in pl['items']:
             try:
                 amount -= 1
-                print("Downloading {}. {} items remaining".format(i['pafy'].title,\
-                    amount))
+                print("Downloading {}. {} items remaining".format(
+                    i['pafy'].title, amount))
                 a = i['pafy'].getbest(preftype="mp4")
                 a.download()
             except:
@@ -155,27 +163,33 @@ def download_playlist(playlist_url):
 
 def main():
 
-    songName = raw_input("Enter the name of the song: ")
-    artistName = raw_input("Enter the name of the artist: ")
+    song_name = raw_input("Enter the name of the song: ")
+    artist_name = raw_input("Enter the name of the artist: ")
 
     # Making the song name and the artist name appear in a queryable 
     # format
-    replacedSongName = songName.replace(" ", "+")
-    replacedArtistName = artistName.replace(" ", "+")
+    replaced_song_name = song_name.replace(" ", "+")
+    replaced_artist_name = artist_name.replace(" ", "+")
 
-    print("\n\t1. Download song\n\t2. Download playlist")
-    dl_choice = raw_input("\nEnter choice below.\n>: ")
-    if dl_choice == "1":
-        url = "https://www.youtube.com/results?search_query=%s+%s" % (replacedSongName, replacedArtistName)
-        lin = process_song_link(url)
-        downloadSong(lin)
-    elif dl_choice == "2":
-        playlist_url = "https://www.youtube.com/results?filters=playlist&lclk="\
-        "playlist&search_query={}+{}".format(replacedSongName, replacedArtistName)
-        pl = process_playlist_link(playlist_url)
-        download_playlist(pl)
-    else:
-        print("That option is not available!")
+    while True:
+        print("\n\t1. Download song\n\t2. Download playlist")
+        dl_choice = raw_input("\nEnter choice below.\n>: ")
+        
+        if dl_choice == "1":
+            url = "https://www.youtube.com/results?search_query={}+{}".format(
+                replaced_song_name, replaced_artist_name)
+            
+            lin = process_song_link(url)
+            download_song(lin)
+        elif dl_choice == "2":
+            playlist_url = "https://www.youtube.com/results?filters=playlist&"\
+            "lclk=playlist&search_query={}+{}".format(replaced_song_name, \
+                replaced_artist_name)
+            
+            pl = process_playlist_link(playlist_url)
+            download_playlist(pl)
+        else:
+            print("That option is not available!")
 
 if __name__ == '__main__':
     main()
